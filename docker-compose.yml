@@ -62,6 +62,8 @@ services:
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - ./volumes/portainer-ce/data:/data
+    networks:
+    - iotstack_nw
   zigbee2mqtt_assistant:
     container_name: zigbee2mqtt_assistant
     image: carldebilly/zigbee2mqttassistant
@@ -75,12 +77,33 @@ services:
     networks:
     - iotstack_nw
 
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    user: "0"
+    ports:
+    - "3000:3000"
+    environment:
+    - TZ=Etc/UTC
+    - GF_PATHS_DATA=/var/lib/grafana
+    - GF_PATHS_LOGS=/var/log/grafana
+    volumes:
+    - ./volumes/grafana/data:/var/lib/grafana
+    - ./volumes/grafana/log:/var/log/grafana
+    networks:
+    - iotstack_nw
+
 networks:
 
   default:
     driver: bridge
     ipam:
       driver: default
+  iotstack_nw:
+    name: IOTstack_Net
+    driver: bridge
+
 
   # nextcloud:
   #   driver: bridge
@@ -88,6 +111,3 @@ networks:
   #   ipam:
   #     driver: default
 
-  iotstack_nw:
-    name: IOTstack_Net
-    driver: bridge
